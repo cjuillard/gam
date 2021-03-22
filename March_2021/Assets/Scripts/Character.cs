@@ -12,6 +12,11 @@ public class Character : MonoBehaviour
 
     public ConstantForce windForceControl;
 
+    // Basic path values
+    [Header("Basic Path Values")] 
+    public float PathTargetOffsetX = 2;
+    public float PathForce = 2;
+
     // Update is called once per frame
     void Update()
     {
@@ -34,6 +39,17 @@ public class Character : MonoBehaviour
             }
         }
         
+        // DoWindLogic();
+        Vector3 targetPos = transform.position;
+        targetPos.x += PathTargetOffsetX;
+        targetPos.z = 0;
+
+        Vector3 pathDelta = targetPos - transform.position;
+        rigidbody.AddForce(pathDelta.normalized * PathForce, ForceMode.Force);
+    }
+
+    private void DoWindLogic()
+    {
         Vector3 windDir = new Vector3();
         if (Input.GetKey(KeyCode.RightArrow))
             windDir.x++;
@@ -56,6 +72,5 @@ public class Character : MonoBehaviour
             windDir.Normalize();
             windForceControl.force = windDir * windForce;
         }
-            
     }
 }
