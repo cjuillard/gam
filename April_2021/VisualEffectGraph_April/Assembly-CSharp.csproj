@@ -54,6 +54,9 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\SimpleCameraController.cs" />
      <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
+     <Compile Include="Assets\Scripts\Boids\Boid.cs" />
+     <Compile Include="Assets\Scripts\Boids\RotationSpeed.cs" />
+     <Compile Include="Assets\Scripts\Boids\Systems\RotationSpeedSystem.cs" />
  <Reference Include="UnityEngine">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
  </Reference>
@@ -275,6 +278,15 @@
  </Reference>
  <Reference Include="UnityEditor.UnityConnectModule">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.UnityConnectModule.dll</HintPath>
+ </Reference>
+ <Reference Include="Newtonsoft.Json">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/PackageCache/com.unity.nuget.newtonsoft-json@2.0.0-preview/Runtime/Newtonsoft.Json.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Burst.Unsafe">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/PackageCache/com.unity.burst@1.4.1/Unity.Burst.Unsafe.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Collections.LowLevel.ILSupport">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/PackageCache/com.unity.collections@0.15.0-preview.21/Unity.Collections.LowLevel.ILSupport/Unity.Collections.LowLevel.ILSupport.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.iOS.Extensions.Xcode">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.4f1/Editor/Data/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
@@ -695,6 +707,87 @@
  </Reference>
  <Reference Include="Unity.Mathematics">
  <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Mathematics.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Properties.UI.Editor">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Properties.UI.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Scenes">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Scenes.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Mathematics.Extensions.Hybrid">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Mathematics.Extensions.Hybrid.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Entities.BuildUtils">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Entities.BuildUtils.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Properties.UI">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Properties.UI.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.ScriptableBuildPipeline">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.ScriptableBuildPipeline.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Serialization">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Serialization.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Jobs">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Jobs.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Deformations">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Deformations.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Properties">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Properties.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEditor.CacheServer">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/UnityEditor.CacheServer.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Jobs.Editor">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Jobs.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Scenes.Editor">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Scenes.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Collections">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Collections.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Entities.Hybrid.EndToEnd.Tests">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Entities.Hybrid.EndToEnd.Tests.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Entities.Editor">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Entities.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Entities.Hybrid">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Entities.Hybrid.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Transforms.Hybrid">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Transforms.Hybrid.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Burst">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Burst.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Mathematics.Extensions">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Mathematics.Extensions.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Transforms">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Transforms.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Entities">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Entities.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Serialization.Editor">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Serialization.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Burst.Editor">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Burst.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.ScriptableBuildPipeline.Editor">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.ScriptableBuildPipeline.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Rendering.Hybrid.Editor">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Rendering.Hybrid.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Rendering.Hybrid">
+ <HintPath>C:/dev/side_projects/game-a-month/April_2021/VisualEffectGraph_April/Library/ScriptAssemblies/Unity.Rendering.Hybrid.dll</HintPath>
  </Reference>
   </ItemGroup>
   <ItemGroup>
