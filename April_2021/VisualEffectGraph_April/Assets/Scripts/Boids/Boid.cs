@@ -10,6 +10,6 @@ namespace Boids
     [GenerateAuthoringComponent]
     public struct Boid : IComponentData
     {
-        public float2 Velocity;
+        public float MaxSpeed;
     }
 }
