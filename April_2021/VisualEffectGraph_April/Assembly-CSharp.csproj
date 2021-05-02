@@ -61,6 +61,8 @@
      <Compile Include="Assets\Scripts\Boids\Velocity.cs" />
      <Compile Include="Assets\Scripts\Boids\BoidSchool.cs" />
      <Compile Include="Assets\Scripts\Boids\BoidSchoolAuthoring.cs" />
+     <Compile Include="Assets\Scripts\Boids\Systems\BoidSystem.cs" />
+     <Compile Include="Assets\Scripts\Boids\BoidSettings.cs" />
  <Reference Include="UnityEngine">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
  </Reference>
