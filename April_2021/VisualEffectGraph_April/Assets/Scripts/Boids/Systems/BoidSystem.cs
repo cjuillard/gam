@@ -14,7 +14,8 @@ namespace Boids.Systems
     public class BoidSystem : SystemBase
     {
         EntityQuery  boidQuery;
-
+        EntityQuery  targetQuery;
+        
         protected override void OnCreate()
         {
             boidQuery = GetEntityQuery(new EntityQueryDesc
@@ -23,6 +24,7 @@ namespace Boids.Systems
             });
 
             RequireForUpdate(boidQuery);
+            RequireForUpdate(targetQuery);
         }
 
         // Implementation options
@@ -34,13 +36,19 @@ namespace Boids.Systems
             float separationWeight = boidSettings.SeparationWeight;
             float cohesionWeight = boidSettings.CohesionWeight;
             float alignmentWeight = boidSettings.AlignmentWeight;
+            float targetWeight = boidSettings.TargetWeight;
             
             float deltaTime = Time.DeltaTime;
 
             var boidCount = boidQuery.CalculateEntityCount();
-
-            // var cellAlignment = new NativeArray<float3>(boidCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            if (boidCount == 0)
+                return;
+            var targetCount = targetQuery.CalculateEntityCount();
+            
+            var cellAlignment = new NativeArray<float3>(boidCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var cellSeparation = new NativeArray<float3>(boidCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+
+            var copyTargetPositions = new NativeArray<float3>(targetCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
             var initialCellSeparationJobHandle = Entities
                 .WithAll<Boid>()
@@ -49,29 +57,70 @@ namespace Boids.Systems
                     cellSeparation[entityInQueryIndex] = localToWorld.Position;
                 })
                 .ScheduleParallel(Dependency);
-
-
             Dependency = initialCellSeparationJobHandle;
+            
+            var initialCellAlignmentJobHandle = Entities
+                .WithAll<Boid>()
+                .ForEach((int entityInQueryIndex, in LocalToWorld localToWorld) =>
+                {
+                    cellAlignment[entityInQueryIndex] = localToWorld.Forward;
+                })
+                .ScheduleParallel(Dependency);
+            Dependency = initialCellAlignmentJobHandle;
+
+            var copyTargetPositionsJobHandle = Entities
+                .WithName("CopyTargetPositionsJob")
+                .WithAll<BoidTarget>()
+                .WithStoreEntityQueryInField(ref targetQuery)
+                .ForEach((int entityInQueryIndex, in LocalToWorld localToWorld) =>
+                {
+                    copyTargetPositions[entityInQueryIndex] = localToWorld.Position;
+                })
+                .ScheduleParallel(Dependency);
+            Dependency = copyTargetPositionsJobHandle;
+            
             var boidJobHandle = Entities
                 .WithName("BoidSystem")
                 .ForEach((int entityInQueryIndex, ref Translation translation, ref Rotation rotation, in LocalToWorld localToWorld, in Boid boid) 
                     =>
                 {
                     float3 summedPos = 0;
-                    int count = 0;
 
                     foreach (var separation in cellSeparation)
                     {
                         summedPos += separation;
-                        count++;
                     }
 
-                    var separationResult = math.normalizesafe(translation.Value - (summedPos / count));
-                    var cohesionResult = -separationResult;
-                    var alignmentResult = float3.zero;  // TODO 
-                    var targetHeading = math.normalizesafe(alignmentResult + separationResult * separationWeight + cohesionResult * cohesionWeight);
+                    float3 summedAlignment = 0;
 
-                    var newForward = localToWorld.Forward + (deltaTime * (targetHeading - localToWorld.Forward));
+                    foreach (var alignment in cellAlignment)
+                    {
+                        summedAlignment += alignment;
+                    }
+
+                    float3 nearestPos = 0;
+                    float nearestDistSqrd = float.MaxValue;
+                    foreach (var target in copyTargetPositions)
+                    {
+                        float currDistSq = math.distancesq(nearestPos, translation.Value);
+                        if (currDistSq < nearestDistSqrd)
+                        {
+                            nearestDistSqrd = currDistSq;
+                            nearestPos = target;
+                        }
+                    }
+
+                    var separationResult = math.normalizesafe(translation.Value - (summedPos / cellSeparation.Length));
+                    var cohesionResult = -separationResult;
+                    var alignmentResult = math.normalizesafe((summedAlignment / cellAlignment.Length));
+                    var targetHeading = math.normalizesafe(nearestPos - translation.Value);
+                    
+                    var targetForward = math.normalizesafe(alignmentWeight * alignmentResult 
+                                                           + separationResult * separationWeight 
+                                                           + cohesionResult * cohesionWeight
+                                                           + targetHeading * targetWeight);
+
+                    var newForward = localToWorld.Forward + (deltaTime * (targetForward - localToWorld.Forward));
                     rotation.Value = quaternion.LookRotationSafe(newForward, math.up());
                     
                     translation.Value += math.normalizesafe(newForward) * boid.MaxSpeed * deltaTime;
@@ -80,7 +129,11 @@ namespace Boids.Systems
                     // translation.Value += forward * boid.MaxSpeed * deltaTime;
                 })
                 .WithDisposeOnCompletion(cellSeparation)
+                .WithDisposeOnCompletion(cellAlignment)
+                .WithDisposeOnCompletion(copyTargetPositions)
                 .WithReadOnly(cellSeparation)
+                .WithReadOnly(cellAlignment)
+                .WithReadOnly(copyTargetPositions)
                 .ScheduleParallel(Dependency);
 
             Dependency = boidJobHandle;

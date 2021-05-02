@@ -247,7 +247,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SeparationWeight: 0.1
   CohesionWeight: 0.75
-  AlignmentWeight: 0.75
+  AlignmentWeight: 0
+  TargetWeight: 0
 --- !u!4 &790550911
 Transform:
   m_ObjectHideFlags: 0
