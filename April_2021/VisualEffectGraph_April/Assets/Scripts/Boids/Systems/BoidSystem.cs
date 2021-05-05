@@ -37,27 +37,28 @@ namespace Boids.Systems
             float cohesionWeight = boidSettings.CohesionWeight;
             float alignmentWeight = boidSettings.AlignmentWeight;
             float targetWeight = boidSettings.TargetWeight;
+            float separationMaxDist = boidSettings.SeparationMaxDist;
             
             float deltaTime = Time.DeltaTime;
-
+            float turnAmount = Mathf.Min(1, Time.DeltaTime * boidSettings.TurnSpeed);
             var boidCount = boidQuery.CalculateEntityCount();
             if (boidCount == 0)
                 return;
             var targetCount = targetQuery.CalculateEntityCount();
             
             var cellAlignment = new NativeArray<float3>(boidCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            var cellSeparation = new NativeArray<float3>(boidCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var cellPositions = new NativeArray<float3>(boidCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
             var copyTargetPositions = new NativeArray<float3>(targetCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
-            var initialCellSeparationJobHandle = Entities
+            var initialCellPositionJobHandle = Entities
                 .WithAll<Boid>()
                 .ForEach((int entityInQueryIndex, in LocalToWorld localToWorld) =>
                 {
-                    cellSeparation[entityInQueryIndex] = localToWorld.Position;
+                    cellPositions[entityInQueryIndex] = localToWorld.Position;
                 })
                 .ScheduleParallel(Dependency);
-            Dependency = initialCellSeparationJobHandle;
+            Dependency = initialCellPositionJobHandle;
             
             var initialCellAlignmentJobHandle = Entities
                 .WithAll<Boid>()
@@ -84,11 +85,25 @@ namespace Boids.Systems
                 .ForEach((int entityInQueryIndex, ref Translation translation, ref Rotation rotation, in LocalToWorld localToWorld, in Boid boid) 
                     =>
                 {
+                    float3 currPos = translation.Value;
+                    
                     float3 summedPos = 0;
-
-                    foreach (var separation in cellSeparation)
+                    foreach (var position in cellPositions)
                     {
-                        summedPos += separation;
+                        summedPos += position;
+                    }
+
+                    int summedSeparationCount = 0;
+                    float3 summedSeparation = 0;
+                    foreach (var position in cellPositions)
+                    {
+                        float3 delta = currPos - position;
+                        float dist = math.length(delta);
+                        if (dist > 0 && dist < separationMaxDist)
+                        {
+                            summedSeparation += (math.normalizesafe(delta) / dist);
+                            summedSeparationCount++;
+                        }
                     }
 
                     float3 summedAlignment = 0;
@@ -110,17 +125,20 @@ namespace Boids.Systems
                         }
                     }
 
-                    var separationResult = math.normalizesafe(translation.Value - (summedPos / cellSeparation.Length));
-                    var cohesionResult = -separationResult;
+                    var cohesionResult = math.normalizesafe((summedPos / cellPositions.Length) - translation.Value);
                     var alignmentResult = math.normalizesafe((summedAlignment / cellAlignment.Length));
                     var targetHeading = math.normalizesafe(nearestPos - translation.Value);
-                    
-                    var targetForward = math.normalizesafe(alignmentWeight * alignmentResult 
-                                                           + separationResult * separationWeight 
-                                                           + cohesionResult * cohesionWeight
-                                                           + targetHeading * targetWeight);
 
-                    var newForward = localToWorld.Forward + (deltaTime * (targetForward - localToWorld.Forward));
+                    var summedTargetForward = alignmentWeight * alignmentResult
+                                              + cohesionResult * cohesionWeight
+                                              + targetHeading * targetWeight;
+                    if (summedSeparationCount > 0)
+                    {
+                        summedTargetForward += separationWeight * summedSeparation / summedSeparationCount;
+                    }
+                    var targetForward = math.normalizesafe(summedTargetForward);
+                   
+                    var newForward = localToWorld.Forward + (turnAmount * (targetForward - localToWorld.Forward));
                     rotation.Value = quaternion.LookRotationSafe(newForward, math.up());
                     
                     translation.Value += math.normalizesafe(newForward) * boid.MaxSpeed * deltaTime;
@@ -128,10 +146,10 @@ namespace Boids.Systems
                     // forward = math.normalizesafe(forward);
                     // translation.Value += forward * boid.MaxSpeed * deltaTime;
                 })
-                .WithDisposeOnCompletion(cellSeparation)
+                .WithDisposeOnCompletion(cellPositions)
                 .WithDisposeOnCompletion(cellAlignment)
                 .WithDisposeOnCompletion(copyTargetPositions)
-                .WithReadOnly(cellSeparation)
+                .WithReadOnly(cellPositions)
                 .WithReadOnly(cellAlignment)
                 .WithReadOnly(copyTargetPositions)
                 .ScheduleParallel(Dependency);

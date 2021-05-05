@@ -245,10 +245,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 599b5c96fe874e89b6ebd2cc1bb90de6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SeparationWeight: 0.1
-  CohesionWeight: 0.75
-  AlignmentWeight: 0
-  TargetWeight: 0
+  SeparationWeight: 0.25
+  CohesionWeight: 0.25
+  AlignmentWeight: 0.25
+  TargetWeight: 1
+  TurnSpeed: 2
+  SeparationMaxDist: 0.25
 --- !u!4 &790550911
 Transform:
   m_ObjectHideFlags: 0

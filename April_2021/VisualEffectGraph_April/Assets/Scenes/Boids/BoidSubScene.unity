@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Prefab: {fileID: 2985660786396348671, guid: d34fae33227049144b20bdd69ab5e0e5, type: 3}
   InitialRadius: 10
-  Count: 50
+  Count: 500
 --- !u!4 &101519102
 Transform:
   m_ObjectHideFlags: 0
@@ -305,7 +305,7 @@ GameObject:
   - component: {fileID: 1720036466}
   - component: {fileID: 1720036465}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: BoidTarget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
