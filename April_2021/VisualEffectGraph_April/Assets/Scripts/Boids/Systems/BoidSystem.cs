@@ -117,7 +117,7 @@ namespace Boids.Systems
                     float nearestDistSqrd = float.MaxValue;
                     foreach (var target in copyTargetPositions)
                     {
-                        float currDistSq = math.distancesq(nearestPos, translation.Value);
+                        float currDistSq = math.distancesq(target, translation.Value);
                         if (currDistSq < nearestDistSqrd)
                         {
                             nearestDistSqrd = currDistSq;
